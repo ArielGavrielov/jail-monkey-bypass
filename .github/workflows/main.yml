@@ -1,0 +1,83 @@
+name: Tweak Compiler
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: macOS-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Check cache
+      id: verify-cache
+      run: |
+        echo "::set-output name=heads::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`"
+    - name: Use cache
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ github.workspace }}/theos
+        key: ${{ runner.os }}-${{ steps.verify-cache.outputs.heads }}
+
+# Don't use @main, this repo is specifically for testing it.
+    - name: Install Theos
+      uses: Randomblock1/theos-action@v1.3
+
+      
+    - name: Checkout theos/lib
+      uses: actions/checkout@v2
+      with: 
+        repository: theos/lib
+        path: theos-lib
+    
+    - name: Move lib files
+      run: |
+        mkdir -p "$THEOS/lib"
+        cp -r theos-lib/* "$THEOS/lib"
+        cp -r frameworks/* "$THEOS/lib"
+      
+    - name: Build package
+      id: build_package
+      run: |
+        rm -f packages/*
+        make clean
+        make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME = rootless
+        echo "::set-output name=package::$(ls -t packages | head -n1)"
+    - name: Upload package
+      uses: actions/upload-artifact@v2.2.0
+      with:
+        name: 'Package'
+        path: ./packages/*.deb
+    
+    - name: Get tweak version
+      id: get_version
+      run: |
+        VERSION=$(echo ${{ steps.build_package.outputs.package }} | cut -d_ -f2)
+        echo Version $VERSION  
+        echo ::set-output name=version::${VERSION}
+  
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.run_number }}_${{ steps.get_version.outputs.version }}
+        release_name: Release ${{ steps.get_version.outputs.version }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}          
+        asset_path: ./packages/${{ steps.build_package.outputs.package }}
+        asset_name: ${{ steps.build_package.outputs.package }}
+        asset_content_type: application/vnd.debian.binary-package
