@@ -1,12 +1,17 @@
-TARGET := iphone:clang:16.5:14.0
+ifeq ($(THEOS_PACKAGE_SCHEME),rootless)
+	ARCHS = arm64 arm64e
+	TARGET = iphone:clang:16.5:15.0
+else
+	ARCHS = arm64 arm64e
+	TARGET = iphone:clang:16.5:13.0
+endif
 
 TWEAK_NAME = Jail-Monkey-Bypass
-PACKAGE_VERSION = 1.0.0
 INSTALL_TARGET_PROCESSES = SpringBoard
 
 include $(THEOS)/makefiles/common.mk
 
-$(TWEAK_NAME)_FILES = Tweak.x Shared.m
+$(TWEAK_NAME)_FILES = Tweak.x
 $(TWEAK_NAME)_EXTRA_FRAMEWORKS = AltList
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc
 

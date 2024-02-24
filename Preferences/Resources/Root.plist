@@ -7,8 +7,6 @@
 		<dict>
 			<key>cell</key>
 			<string>PSGroupCell</string>
-			<key>footerText</key>
-			<string>Enable apps with Jail-Monkey Jailbreak detection to bypass.</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -20,7 +18,21 @@
 			<key>key</key>
 			<string>enabled</string>
 			<key>label</key>
-			<string>Enabled</string>
+			<string>Enabled Tweak</string>
+			<key>nestedEntryCount</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>default</key>
+			<true/>
+			<key>defaults</key>
+			<string>com.ariel.jailmonkeybypassprefs</string>
+			<key>key</key>
+			<string>specificApps</string>
+			<key>label</key>
+			<string>Enabled for specific apps</string>
 			<key>nestedEntryCount</key>
 			<integer>1</integer>
 		</dict>
@@ -75,6 +87,6 @@
 		</dict>
 	</array>
 	<key>title</key>
-	<string>JailMonkeyBypass</string>
+	<string>Jail Monkey Bypass</string>
 </dict>
 </plist>

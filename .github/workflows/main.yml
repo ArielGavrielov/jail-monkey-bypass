@@ -16,7 +16,7 @@ jobs:
     - name: Check cache
       id: verify-cache
       run: |
-        echo "::set-output name=heads::`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`"
+        echo "heads=`git ls-remote https://github.com/theos/theos | head -n 1 | cut -f 1`-`git ls-remote https://github.com/theos/sdks | head -n 1 | cut -f 1`" >> $GITHUB_OUTPUT
     - name: Use cache
       id: cache
       uses: actions/cache@v2
@@ -46,8 +46,17 @@ jobs:
       run: |
         rm -f packages/*
         make clean
+        make package FINALPACKAGE=1
+
+        make clean
         make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless
-        echo "::set-output name=package::$(ls -t packages | head -n1)"
+
+        ROOTLESS_PACKAGE=$(ls -t packages | grep arm64.deb | head -n1)
+        ROOTFULL_PACKAGE=$(ls -t packages | grep arm.deb | head -n1)
+
+        echo "rootless_package=$ROOTLESS_PACKAGE" >> $GITHUB_OUTPUT
+        echo "rootfull_package=$ROOTFULL_PACKAGE" >> $GITHUB_OUTPUT
+
     - name: Upload package
       uses: actions/upload-artifact@v2.2.0
       with:
@@ -57,9 +66,9 @@ jobs:
     - name: Get tweak version
       id: get_version
       run: |
-        VERSION=$(echo ${{ steps.build_package.outputs.package }} | cut -d_ -f2)
-        echo Version $VERSION  
-        echo ::set-output name=version::${VERSION}
+        VERSION=$(echo ${{ steps.build_package.outputs.rootless_package }} | cut -d_ -f2)
+        echo Version $VERSION
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
   
     - name: Create Release
       id: create_release
@@ -72,12 +81,22 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
+    - name: Upload Rootless Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}          
-        asset_path: ./packages/${{ steps.build_package.outputs.package }}
-        asset_name: ${{ steps.build_package.outputs.package }}
+        asset_path: ./packages/${{ steps.build_package.outputs.rootless_package }}
+        asset_name: ${{ steps.build_package.outputs.rootless_package }}
+        asset_content_type: application/vnd.debian.binary-package
+
+    - name: Upload Rootfull Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}          
+        asset_path: ./packages/${{ steps.build_package.outputs.rootfull_package }}
+        asset_name: ${{ steps.build_package.outputs.rootfull_package }}
         asset_content_type: application/vnd.debian.binary-package

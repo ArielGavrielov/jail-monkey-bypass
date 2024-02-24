@@ -1,9 +1,15 @@
-TARGET := iphone:clang:16.5:15.0
+ifeq ($(THEOS_PACKAGE_SCHEME),rootless)
+	ARCHS = arm64 arm64e
+	TARGET = iphone:clang:16.5:15.0
+else
+	ARCHS = arm64 arm64e
+	TARGET = iphone:clang:16.5:13.0
+endif
 
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = JailMonkeyBypassPrefs
-$(BUNDLE_NAME)_FILES = JMBListController.m JMBRootListController.m ../Shared.m
+$(BUNDLE_NAME)_FILES = JMBListController.m JMBRootListController.m
 $(BUNDLE_NAME)_INSTALL_PATH = /Library/PreferenceBundles
 $(BUNDLE_NAME)_FRAMEWORKS = UIKit
 $(BUNDLE_NAME)_PRIVATE_FRAMEWORKS = Preferences

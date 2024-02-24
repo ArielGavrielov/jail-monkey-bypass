@@ -7,10 +7,6 @@
 - (instancetype)init
 {
 	self = [super init];
-	if(self)
-	{
-		migratePreferencesIfNeeded();
-	}
 	return self;
 }
 
