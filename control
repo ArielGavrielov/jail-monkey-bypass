@@ -1,6 +1,6 @@
 Package: com.ariel.jail-monkey-bypass
 Name: Jail-Monkey-Bypass
-Version: 1.0.0
+Version: 1.0.1
 Architecture: iphoneos-arm
 Description: React Native apps Jail-Monkey jailbreak detection bypass. https://github.com/ArielGavrielov/jail-monkey-bypass/
 Maintainer: Ariel Gavrielov

@@ -58,12 +58,14 @@ void handleEnabledAppsChange() {
 	cachedPrefs = newPrefs;
 }
 
+@group(Application)
 %hook JailMonkey
 - (BOOL)isJailBroken {
   NSLog(@"JailMonkey isJailbroken called.");
   return NO;
 }
 %end
+@end
 
 %ctor {
   	NSString *executablePath = safe_getExecutablePath();
@@ -86,7 +88,7 @@ void handleEnabledAppsChange() {
 			NSArray* enabledApps = [preferences objectForKey:@"enabledApplications"];
 			if(![enabledApps containsObject:identifier]) return;
 
-			%init;
+			%init(Application);
 		}
   	}
 }
