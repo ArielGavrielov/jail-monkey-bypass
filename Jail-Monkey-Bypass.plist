@@ -6,7 +6,7 @@
     <dict>
         <key>Bundles</key>
         <array>
-            <string>com.apple.Foundation</string>
+            <string>org.cocoapods.jail-monkey</string>
         </array>
     </dict>
 </dict>
