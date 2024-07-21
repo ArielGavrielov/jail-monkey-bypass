@@ -7,6 +7,7 @@
         <key>Bundles</key>
         <array>
             <string>org.cocoapods.jail-monkey</string>
+            <string>com.upstart42.dbcaptaincredit</string>
         </array>
     </dict>
 </dict>
